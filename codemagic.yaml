@@ -19,8 +19,6 @@ workflows:
 
     environment:
       java: 17
-      android:
-        ndk: 27.2.12479018
       # The repository currently contains the reproducible-build keystore.
       # Replace it with a Codemagic keystore before publishing production APKs.
       android_signing:
@@ -47,6 +45,9 @@ workflows:
         script: |
           set -euxo pipefail
           java -version
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "ndk;27.2.12479018" "cmake;3.22.1"
+          export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/27.2.12479018"
           "$ANDROID_HOME/platform-tools/adb" version || true
           "$ANDROID_HOME/cmake/3.22.1/bin/cmake" --version
           "$ANDROID_NDK_HOME/ndk-build" --version || true
