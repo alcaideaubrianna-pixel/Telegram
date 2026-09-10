@@ -1,6 +1,6 @@
 workflows:
   android-gramsrv:
-    name: Telegram Android (gramsrv)
+    name: MixChat Android (gramsrv)
     max_build_duration: 120
     instance_type: mac_mini_m2
 
@@ -28,8 +28,8 @@ workflows:
       cache_paths:
         - $HOME/.gradle/caches
         - $HOME/.gradle/wrapper
-        - $ANDROID_HOME/ndk/27.2.12479018
-        - $ANDROID_HOME/cmake/3.22.1
+        - $ANDROID_SDK_ROOT/ndk/27.2.12479018
+        - $ANDROID_SDK_ROOT/cmake/3.22.1
 
     scripts:
       - name: Verify checkout and submodules
@@ -41,16 +41,24 @@ workflows:
           test -f TMessagesProj/jni/CMakeLists.txt
           test -f TMessagesProj/lib/jlatexmath/build.gradle
 
-      - name: Verify Android toolchain
+      - name: Configure Android toolchain
         script: |
           set -euxo pipefail
+          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-}}"
+          test -n "$SDK_ROOT"
+          test -d "$SDK_ROOT"
+          echo "sdk.dir=$SDK_ROOT" > "$CM_BUILD_DIR/local.properties"
+
+          if [ ! -d "$SDK_ROOT/ndk/27.2.12479018" ] || [ ! -d "$SDK_ROOT/cmake/3.22.1" ]; then
+            SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -path '*/bin/sdkmanager' 2>/dev/null | head -1)"
+            test -n "$SDKMANAGER"
+            yes | "$SDKMANAGER" --licenses >/dev/null || true
+            "$SDKMANAGER" "ndk;27.2.12479018" "cmake;3.22.1"
+          fi
+
           java -version
-          yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager "ndk;27.2.12479018" "cmake;3.22.1"
-          export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/27.2.12479018"
-          "$ANDROID_HOME/platform-tools/adb" version || true
-          "$ANDROID_HOME/cmake/3.22.1/bin/cmake" --version
-          "$ANDROID_NDK_HOME/ndk-build" --version || true
+          "$SDK_ROOT/cmake/3.22.1/bin/cmake" --version
+          test -f "$SDK_ROOT/ndk/27.2.12479018/source.properties"
 
       - name: Prepare Gradle properties
         script: |
@@ -58,7 +66,9 @@ workflows:
           # The Gradle scripts use this repository-relative path. Codemagic
           # exposes the selected signing asset at CM_KEYSTORE_PATH.
           if [ -n "${CM_KEYSTORE_PATH:-}" ]; then
-            install -D -m 600 "$CM_KEYSTORE_PATH" TMessagesProj/config/release.keystore
+            mkdir -p TMessagesProj/config
+            cp "$CM_KEYSTORE_PATH" TMessagesProj/config/release.keystore
+            chmod 600 TMessagesProj/config/release.keystore
             RELEASE_STORE_PASSWORD="${CM_KEYSTORE_PASSWORD:?Missing CM_KEYSTORE_PASSWORD}"
             RELEASE_KEY_ALIAS="${CM_KEY_ALIAS:?Missing CM_KEY_ALIAS}"
             RELEASE_KEY_PASSWORD="${CM_KEY_PASSWORD:?Missing CM_KEY_PASSWORD}"
