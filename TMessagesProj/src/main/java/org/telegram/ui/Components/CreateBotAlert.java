@@ -318,7 +318,7 @@ public class CreateBotAlert {
                                     ),
                                     () -> {
                                         sheet.dismiss();
-                                        Browser.openUrl(context, "https://telesrv.net/BotFather?start=deletebot");
+                                        Browser.openUrl(context, "https://mixchat.cc/BotFather?start=deletebot");
                                     },
                                     resourcesProvider
                                 )

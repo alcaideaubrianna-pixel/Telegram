@@ -507,6 +507,6 @@ public class ProfileGiftsView extends View implements NotificationCenter.Notific
     }
 
     public void onGiftClick(Gift gift) {
-        Browser.openUrl(getContext(), "https://telesrv.net/nft/" + gift.slug);
+        Browser.openUrl(getContext(), "https://mixchat.cc/nft/" + gift.slug);
     }
 }

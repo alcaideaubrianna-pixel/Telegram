@@ -1,0 +1,96 @@
+workflows:
+  android-gramsrv:
+    name: Telegram Android (gramsrv)
+    max_build_duration: 180
+    instance_type: linux_x2
+
+    triggering:
+      events:
+        - push
+        - tag
+        - pull_request
+      branch_patterns:
+        - pattern: master
+          include: true
+          source: true
+        - pattern: 'refs/tags/*'
+          include: true
+          source: true
+
+    environment:
+      java: 17
+      android:
+        ndk: 27.2.12479018
+      # The repository currently contains the reproducible-build keystore.
+      # Replace it with a Codemagic keystore before publishing production APKs.
+      android_signing:
+        - gramsrv_release
+
+    cache:
+      cache_paths:
+        - $HOME/.gradle/caches
+        - $HOME/.gradle/wrapper
+        - $ANDROID_HOME/ndk/27.2.12479018
+        - $ANDROID_HOME/cmake/3.22.1
+
+    scripts:
+      - name: Verify checkout and submodules
+        script: |
+          set -euxo pipefail
+          git submodule sync --recursive
+          git submodule update --init --recursive --depth=1
+          test -f gradlew
+          test -f TMessagesProj/jni/CMakeLists.txt
+          test -f TMessagesProj/lib/jlatexmath/build.gradle
+
+      - name: Verify Android toolchain
+        script: |
+          set -euxo pipefail
+          java -version
+          "$ANDROID_HOME/platform-tools/adb" version || true
+          "$ANDROID_HOME/cmake/3.22.1/bin/cmake" --version
+          "$ANDROID_NDK_HOME/ndk-build" --version || true
+
+      - name: Prepare Gradle properties
+        script: |
+          set -euxo pipefail
+          # The Gradle scripts use this repository-relative path. Codemagic
+          # exposes the selected signing asset at CM_KEYSTORE_PATH.
+          if [ -n "${CM_KEYSTORE_PATH:-}" ]; then
+            install -D -m 600 "$CM_KEYSTORE_PATH" TMessagesProj/config/release.keystore
+            RELEASE_STORE_PASSWORD="${CM_KEYSTORE_PASSWORD:?Missing CM_KEYSTORE_PASSWORD}"
+            RELEASE_KEY_ALIAS="${CM_KEY_ALIAS:?Missing CM_KEY_ALIAS}"
+            RELEASE_KEY_PASSWORD="${CM_KEY_PASSWORD:?Missing CM_KEY_PASSWORD}"
+          fi
+          # gradle.properties in this repository contains dummy values for
+          # reproducible builds. CI secrets override them without committing
+          # credentials to the repository.
+          {
+            echo "RELEASE_KEY_PASSWORD=${RELEASE_KEY_PASSWORD:-android}"
+            echo "RELEASE_KEY_ALIAS=${RELEASE_KEY_ALIAS:-androidkey}"
+            echo "RELEASE_STORE_PASSWORD=${RELEASE_STORE_PASSWORD:-android}"
+          } >> gradle.properties
+          chmod +x ./gradlew
+
+      - name: Build gramsrv Android artifacts
+        script: |
+          set -euxo pipefail
+          ./gradlew --no-daemon --stacktrace --parallel \
+            :TMessagesProj_App:assembleBundleAfatRelease \
+            :TMessagesProj_App:bundleBundleAfatRelease \
+            :TMessagesProj_AppStandalone:assembleAfatStandalone
+
+    artifacts:
+      - TMessagesProj_App/build/outputs/apk/**/*.apk
+      - TMessagesProj_App/build/outputs/bundle/**/*.aab
+      - TMessagesProj_AppStandalone/build/outputs/apk/**/*.apk
+      - TMessagesProj/build/outputs/native-debug-symbols/**/*.zip
+      - /tmp/**/*.log
+
+    publishing:
+      email:
+        recipients:
+          - $CM_BUILD_OWNER_EMAIL
+        notify:
+          success: false
+          failure: true

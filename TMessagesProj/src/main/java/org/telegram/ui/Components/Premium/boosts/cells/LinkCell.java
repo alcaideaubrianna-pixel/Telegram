@@ -66,7 +66,7 @@ public class LinkCell extends FrameLayout {
 
     public void setSlug(String slug) {
         this.slug = slug;
-        this.link = "https://telesrv.net/giftcode/" + slug;
+        this.link = "https://mixchat.cc/giftcode/" + slug;
         linkView.setText("t.me/giftcode/" + slug);
     }
 

@@ -1789,7 +1789,7 @@ public abstract class BotWebViewContainer extends FrameLayout implements Notific
                     if (pathFull.startsWith("/")) {
                         pathFull = pathFull.substring(1);
                     }
-                    onOpenUri(Uri.parse("https://telesrv.net/" + pathFull), null, false, true, force_request);
+                    onOpenUri(Uri.parse("https://mixchat.cc/" + pathFull), null, false, true, force_request);
                 } catch (JSONException e) {
                     FileLog.e(e);
                 }
@@ -4119,7 +4119,7 @@ public abstract class BotWebViewContainer extends FrameLayout implements Notific
                         }
                     }
                     if (botWebViewContainer != null && Browser.isInternalUri(uriNew, null)) {
-                        if (!bot && "1".equals(uriNew.getQueryParameter("embed")) && "telesrv.net".equals(uriNew.getAuthority())) {
+                        if (!bot && "1".equals(uriNew.getQueryParameter("embed")) && "mixchat.cc".equals(uriNew.getAuthority())) {
                             return false;
                         }
                         if (MessagesController.getInstance(botWebViewContainer.currentAccount).webAppAllowedProtocols != null &&

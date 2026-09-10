@@ -517,13 +517,13 @@ public class ProxySettingsActivity extends BaseFragment {
                     params.append("port=").append(URLEncoder.encode(port, "UTF-8"));
                 }
                 if (currentType == 1) {
-                    url = "https://telesrv.net/proxy?";
+                    url = "https://mixchat.cc/proxy?";
                     if (params.length() != 0) {
                         params.append("&");
                     }
                     params.append("secret=").append(URLEncoder.encode(secret, "UTF-8"));
                 } else {
-                    url = "https://telesrv.net/socks?";
+                    url = "https://mixchat.cc/socks?";
                     if (!TextUtils.isEmpty(user)) {
                         if (params.length() != 0) {
                             params.append("&");

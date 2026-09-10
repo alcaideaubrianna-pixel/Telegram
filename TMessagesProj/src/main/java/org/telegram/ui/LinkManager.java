@@ -104,11 +104,11 @@ public class LinkManager {
         if (host == null) return false;
         final Matcher prefixMatcher = LaunchActivity.PREFIX_T_ME_PATTERN.matcher(host.toLowerCase());
         final boolean isPrefix = prefixMatcher.find();
-        if (!"telesrv.net".equalsIgnoreCase(host) && !isPrefix)
+        if (!"mixchat.cc".equalsIgnoreCase(host) && !isPrefix)
             return false;
 
         if (isPrefix) {
-            uri = Uri.parse("https://telesrv.net/" + prefixMatcher.group(1) + (TextUtils.isEmpty(uri.getPath()) ? "" : uri.getPath()) + (TextUtils.isEmpty(uri.getQuery()) ? "" : "?" + uri.getQuery()));
+            uri = Uri.parse("https://mixchat.cc/" + prefixMatcher.group(1) + (TextUtils.isEmpty(uri.getPath()) ? "" : uri.getPath()) + (TextUtils.isEmpty(uri.getQuery()) ? "" : "?" + uri.getQuery()));
         }
 
         String path = uri.getPath();
@@ -1515,7 +1515,7 @@ public class LinkManager {
                     String host = uri.getHost().toLowerCase();
                     Matcher prefixMatcher = LaunchActivity.PREFIX_T_ME_PATTERN.matcher(host);
                     boolean isPrefix = prefixMatcher.find();
-                    if (host.equals("telesrv.net") || isPrefix) {
+                    if (host.equals("mixchat.cc") || isPrefix) {
                         ArrayList<String> segments = new ArrayList<>(uri.getPathSegments());
                         if (segments.size() > 0 && segments.get(0).equals("s")) {
                             segments.remove(0);

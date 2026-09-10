@@ -405,7 +405,7 @@ public class SharedConfig {
         }
 
         public String getLink() {
-            StringBuilder url = new StringBuilder(!TextUtils.isEmpty(secret) ? "https://telesrv.net/proxy?" : "https://telesrv.net/socks?");
+            StringBuilder url = new StringBuilder(!TextUtils.isEmpty(secret) ? "https://mixchat.cc/proxy?" : "https://mixchat.cc/socks?");
             try {
                 url.append("server=").append(URLEncoder.encode(address, "UTF-8")).append("&").append("port=").append(port);
                 if (!TextUtils.isEmpty(username)) {

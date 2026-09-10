@@ -201,20 +201,20 @@ public class Browser {
         if (link == null || TextUtils.isEmpty(link)) {
             return null;
         }
-        final String telesrvPrefix = "telesrv.net/";
-        final String telesrvHttpPrefix = "http://telesrv.net/";
-        final String telesrvHttpsPrefix = "https://telesrv.net/";
+        final String mixlinkPrefix = "mixchat.cc/";
+        final String mixlinkHttpPrefix = "http://mixchat.cc/";
+        final String mixlinkHttpsPrefix = "https://mixchat.cc/";
         if (link.startsWith("@")) {
             return link.substring(1);
         }
-        if (link.startsWith(telesrvPrefix)) {
-            return link.substring(telesrvPrefix.length());
+        if (link.startsWith(mixlinkPrefix)) {
+            return link.substring(mixlinkPrefix.length());
         }
-        if (link.startsWith(telesrvHttpPrefix)) {
-            return link.substring(telesrvHttpPrefix.length());
+        if (link.startsWith(mixlinkHttpPrefix)) {
+            return link.substring(mixlinkHttpPrefix.length());
         }
-        if (link.startsWith(telesrvHttpsPrefix)) {
-            return link.substring(telesrvHttpsPrefix.length());
+        if (link.startsWith(mixlinkHttpsPrefix)) {
+            return link.substring(mixlinkHttpsPrefix.length());
         }
         if (link.startsWith("t.me/")) {
             return link.substring(5);
@@ -699,7 +699,7 @@ public class Browser {
 
         Matcher prefixMatcher = LaunchActivity.PREFIX_T_ME_PATTERN.matcher(host);
         if (prefixMatcher.find()) {
-            uri = Uri.parse("https://telesrv.net/" + prefixMatcher.group(1) + (TextUtils.isEmpty(uri.getPath()) ? "" : "/" + uri.getPath()) + (TextUtils.isEmpty(uri.getQuery()) ? "" : "?" + uri.getQuery()));
+            uri = Uri.parse("https://mixchat.cc/" + prefixMatcher.group(1) + (TextUtils.isEmpty(uri.getPath()) ? "" : "/" + uri.getPath()) + (TextUtils.isEmpty(uri.getQuery()) ? "" : "?" + uri.getQuery()));
 
             host = uri.getHost();
             host = host != null ? host.toLowerCase() : "";
@@ -733,7 +733,7 @@ public class Browser {
                 }
                 return true;
             }
-        } else if ("telesrv.net".equals(host)) {
+        } else if ("mixchat.cc".equals(host)) {
             String path = uri.getPath();
             if (path != null && path.length() > 1) {
                 if (all) {
