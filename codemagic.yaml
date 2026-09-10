@@ -1,7 +1,7 @@
 workflows:
   android-gramsrv:
     name: Telegram Android (gramsrv)
-    max_build_duration: 180
+    max_build_duration: 120
     instance_type: linux_x2
 
     triggering:
