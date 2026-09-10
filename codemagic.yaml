@@ -22,7 +22,7 @@ workflows:
       # The repository currently contains the reproducible-build keystore.
       # Replace it with a Codemagic keystore before publishing production APKs.
       android_signing:
-        - gramsrv_release
+        - mixchat
 
     cache:
       cache_paths:
