@@ -95,6 +95,9 @@ workflows:
             echo "RELEASE_KEY_PASSWORD=$CM_KEY_PASSWORD"
             echo "RELEASE_KEY_ALIAS=$CM_KEY_ALIAS"
             echo "RELEASE_STORE_PASSWORD=$CM_KEYSTORE_PASSWORD"
+            echo "org.gradle.jvmargs=-Xmx6g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8"
+            echo "org.gradle.parallel=false"
+            echo "org.gradle.workers.max=2"
           } >> gradle.properties
           chmod +x ./gradlew
           echo "Signing credentials verified for alias: $CM_KEY_ALIAS"
@@ -102,14 +105,10 @@ workflows:
       - name: Build gramsrv Android artifacts
         script: |
           set -euxo pipefail
-          ./gradlew --no-daemon --stacktrace --parallel \
-            :TMessagesProj_App:assembleBundleAfatRelease \
-            :TMessagesProj_App:bundleBundleAfatRelease \
-            :TMessagesProj_AppStandalone:assembleAfatStandalone
+          ./gradlew --no-daemon --stacktrace --no-parallel --max-workers=2 \
+            :TMessagesProj_App:assembleAfatRelease
 
     artifacts:
       - TMessagesProj_App/build/outputs/apk/**/*.apk
-      - TMessagesProj_App/build/outputs/bundle/**/*.aab
-      - TMessagesProj_AppStandalone/build/outputs/apk/**/*.apk
       - TMessagesProj/build/outputs/native-debug-symbols/**/*.zip
       - /tmp/**/*.log
