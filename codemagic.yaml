@@ -62,26 +62,42 @@ workflows:
 
       - name: Prepare Gradle properties
         script: |
-          set -euxo pipefail
+          set -euo pipefail
           # The Gradle scripts use this repository-relative path. Codemagic
           # exposes the selected signing asset at CM_KEYSTORE_PATH.
-          if [ -n "${CM_KEYSTORE_PATH:-}" ]; then
-            mkdir -p TMessagesProj/config
-            cp "$CM_KEYSTORE_PATH" TMessagesProj/config/release.keystore
-            chmod 600 TMessagesProj/config/release.keystore
-            RELEASE_STORE_PASSWORD="${CM_KEYSTORE_PASSWORD:?Missing CM_KEYSTORE_PASSWORD}"
-            RELEASE_KEY_ALIAS="${CM_KEY_ALIAS:?Missing CM_KEY_ALIAS}"
-            RELEASE_KEY_PASSWORD="${CM_KEY_PASSWORD:?Missing CM_KEY_PASSWORD}"
-          fi
-          # gradle.properties in this repository contains dummy values for
-          # reproducible builds. CI secrets override them without committing
-          # credentials to the repository.
+          : "${CM_KEYSTORE_PATH:?Missing CM_KEYSTORE_PATH}"
+          : "${CM_KEYSTORE_PASSWORD:?Missing CM_KEYSTORE_PASSWORD}"
+          : "${CM_KEY_ALIAS:?Missing CM_KEY_ALIAS}"
+          : "${CM_KEY_PASSWORD:?Missing CM_KEY_PASSWORD}"
+          test -f "$CM_KEYSTORE_PATH"
+
+          keytool -list \
+            -keystore "$CM_KEYSTORE_PATH" \
+            -storepass:env CM_KEYSTORE_PASSWORD \
+            -alias "$CM_KEY_ALIAS" >/dev/null
+
+          SIGNING_TEST_DIR="$(mktemp -d)"
+          mkdir "$SIGNING_TEST_DIR/payload"
+          echo signing-test > "$SIGNING_TEST_DIR/payload/test.txt"
+          jar --create --file "$SIGNING_TEST_DIR/test.jar" -C "$SIGNING_TEST_DIR/payload" .
+          jarsigner \
+            -keystore "$CM_KEYSTORE_PATH" \
+            -storepass:env CM_KEYSTORE_PASSWORD \
+            -keypass:env CM_KEY_PASSWORD \
+            "$SIGNING_TEST_DIR/test.jar" "$CM_KEY_ALIAS" >/dev/null
+          rm -rf "$SIGNING_TEST_DIR"
+
+          mkdir -p TMessagesProj/config
+          cp "$CM_KEYSTORE_PATH" TMessagesProj/config/release.keystore
+          chmod 600 TMessagesProj/config/release.keystore
+
           {
-            echo "RELEASE_KEY_PASSWORD=${RELEASE_KEY_PASSWORD:-android}"
-            echo "RELEASE_KEY_ALIAS=${RELEASE_KEY_ALIAS:-androidkey}"
-            echo "RELEASE_STORE_PASSWORD=${RELEASE_STORE_PASSWORD:-android}"
+            echo "RELEASE_KEY_PASSWORD=$CM_KEY_PASSWORD"
+            echo "RELEASE_KEY_ALIAS=$CM_KEY_ALIAS"
+            echo "RELEASE_STORE_PASSWORD=$CM_KEYSTORE_PASSWORD"
           } >> gradle.properties
           chmod +x ./gradlew
+          echo "Signing credentials verified for alias: $CM_KEY_ALIAS"
 
       - name: Build gramsrv Android artifacts
         script: |
