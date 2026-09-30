@@ -1822,7 +1822,7 @@ void ConnectionsManager::initDatacenters() {
     }
 
     std::vector<TcpAddress> localAddresses;
-    localAddresses.push_back(TcpAddress("im.mixchat.cc", 2398, TcpAddressFlagStatic, ""));
+    localAddresses.push_back(TcpAddress("mtproto.im.mixlink.cc", 2398, TcpAddressFlagStatic, ""));
     datacenter->replaceAddresses(localAddresses, 0);
 }
 
