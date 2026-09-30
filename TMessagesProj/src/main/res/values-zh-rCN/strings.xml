@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="AppName">Mixchat</string>
-    <string name="AppNameBeta">Mixchat</string>
+    <string name="AppName">MixLink</string>
+    <string name="AppNameBeta">MixLink Beta</string>
     <string name="LanguageName">简体中文</string>
     <string name="English">英语</string>
     <string name="LanguageNameInEnglish">Chinese (Simplified)</string>
