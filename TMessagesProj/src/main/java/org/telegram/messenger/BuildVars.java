@@ -26,8 +26,11 @@ public class BuildVars {
     public static boolean NO_SCOPED_STORAGE = Build.VERSION.SDK_INT <= 29;
     public static String BUILD_VERSION_STRING = BuildConfig.BUILD_VERSION_STRING;
 
-    public static int APP_ID = 0;
-    public static String APP_HASH = "014b35b6184100b085b0d0572f9b5103";
+    // Keep these aligned with the iOS client. The self-hosted server does not
+    // enforce Telegram's public application registration, but a non-zero ID
+    // is still required by the client login flow.
+    public static int APP_ID = 8;
+    public static String APP_HASH = "7245de8e747a0d6fbe11f7cc14fcc0bb";
 
     // SafetyNet key for Google Identity SDK, set it to empty to disable
     public static String SAFETYNET_KEY = "AIzaSyDqt8P-7F7CPCseMkOiVRgb1LY8RN1bvH8";
