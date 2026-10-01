@@ -13,6 +13,9 @@ workflows:
         - pattern: master
           include: true
           source: true
+        - pattern: develop
+          include: true
+          source: true
         - pattern: 'refs/tags/*'
           include: true
           source: true
@@ -28,8 +31,13 @@ workflows:
       cache_paths:
         - $HOME/.gradle/caches
         - $HOME/.gradle/wrapper
+        - $HOME/.gradle/build-cache
+        - $HOME/.android
         - $ANDROID_SDK_ROOT/ndk/27.2.12479018
         - $ANDROID_SDK_ROOT/cmake/3.22.1
+        - $CM_BUILD_DIR/TMessagesProj/.cxx
+        - $CM_BUILD_DIR/TMessagesProj/build
+        - $CM_BUILD_DIR/TMessagesProj_App/build
 
     scripts:
       - name: Verify checkout and submodules
@@ -96,8 +104,9 @@ workflows:
             echo "RELEASE_KEY_ALIAS=$CM_KEY_ALIAS"
             echo "RELEASE_STORE_PASSWORD=$CM_KEYSTORE_PASSWORD"
             echo "org.gradle.jvmargs=-Xmx6g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8"
-            echo "org.gradle.parallel=false"
-            echo "org.gradle.workers.max=2"
+            echo "org.gradle.caching=true"
+            echo "org.gradle.parallel=true"
+            echo "org.gradle.workers.max=4"
           } >> gradle.properties
           chmod +x ./gradlew
           echo "Signing credentials verified for alias: $CM_KEY_ALIAS"
@@ -105,7 +114,7 @@ workflows:
       - name: Build gramsrv Android artifacts
         script: |
           set -euxo pipefail
-          ./gradlew --no-daemon --stacktrace --no-parallel --max-workers=2 \
+          ./gradlew --no-daemon --stacktrace --build-cache --max-workers=4 \
             :TMessagesProj_App:assembleAfatRelease
 
     artifacts:
