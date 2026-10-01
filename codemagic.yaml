@@ -79,6 +79,16 @@ workflows:
           : "${CM_KEY_PASSWORD:?Missing CM_KEY_PASSWORD}"
           test -f "$CM_KEYSTORE_PATH"
 
+          # Keep every Codemagic artifact installable as a newer build while
+          # preserving the repository value for local builds. The ABI suffix
+          # is added by TMessagesProj_App/build.gradle.
+          if [ -n "${CM_BUILD_ID:-}" ] && [ "$CM_BUILD_ID" -eq "$CM_BUILD_ID" ] 2>/dev/null; then
+            BUILD_CODE=$((7105 + CM_BUILD_ID))
+            sed -i.bak -E "s/^APP_VERSION_CODE=.*/APP_VERSION_CODE=$BUILD_CODE/" gradle.properties
+            rm -f gradle.properties.bak
+            echo "Using Codemagic build version code: $BUILD_CODE"
+          fi
+
           keytool -list \
             -keystore "$CM_KEYSTORE_PATH" \
             -storepass:env CM_KEYSTORE_PASSWORD \
