@@ -177,9 +177,14 @@ void ConnectionSocket::openConnection(std::string address, uint16_t port, std::s
             socketAddress.sin_family = AF_INET;
             socketAddress.sin_port = htons(port);
             if (inet_pton(AF_INET, address.c_str(), &socketAddress.sin_addr.s_addr) != 1) {
-                if (LOGS_ENABLED) DEBUG_E("connection(%p) bad ipv4 %s", this, address.c_str());
-                closeSocket(1, -1);
-                return;
+                struct hostent *he = gethostbyname(address.c_str());
+                if (he == nullptr || he->h_addr_list[0] == nullptr) {
+                    if (LOGS_ENABLED) DEBUG_E("connection(%p) bad ipv4 %s", this, address.c_str());
+                    closeSocket(1, -1);
+                    return;
+                }
+                memcpy(&socketAddress.sin_addr.s_addr, he->h_addr_list[0], sizeof(socketAddress.sin_addr.s_addr));
+                if (LOGS_ENABLED) DEBUG_D("connection(%p) resolved host %s", this, address.c_str());
             }
         }
         uint32_t tempBuffLength;
