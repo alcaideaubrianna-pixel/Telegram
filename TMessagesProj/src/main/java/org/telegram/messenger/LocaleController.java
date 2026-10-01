@@ -605,11 +605,13 @@ public class LocaleController {
         localeInfo = new LocaleInfo();
         localeInfo.name = "简体中文";
         localeInfo.nameEnglish = "Chinese (Simplified)";
-        localeInfo.shortName = localeInfo.pluralLangCode = "zh";
+        // Match the built-in Android resource qualifier values-zh-rCN.
+        localeInfo.shortName = localeInfo.pluralLangCode = "zh_cn";
         localeInfo.pathToFile = null;
         localeInfo.builtIn = true;
         languages.add(localeInfo);
         languagesDict.put(localeInfo.shortName, localeInfo);
+        languagesDict.put("zh", localeInfo);
 
         localeInfo = new LocaleInfo();
         localeInfo.name = "Italiano";
@@ -741,7 +743,7 @@ public class LocaleController {
             SharedPreferences preferences = MessagesController.getGlobalMainSettings();
             // Mixchat ships with Chinese as the default UI language. Users can
             // still change it from Settings, which persists the override here.
-            String lang = preferences.getString("language", "zh");
+            String lang = preferences.getString("language", "zh_cn");
             if (lang != null) {
                 currentInfo = getLanguageFromDict(lang);
                 if (currentInfo != null) {
